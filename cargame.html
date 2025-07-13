@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA Style Car Racing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 20%, #90EE90 20%, #228B22 100%);
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sky and Mountains */
+        #background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 100%);
+            z-index: 1;
+        }
+
+        #mountains {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: 
+                polygon(0% 100%, 8% 40%, 16% 100%),
+                polygon(12% 100%, 20% 20%, 28% 100%),
+                polygon(24% 100%, 32% 60%, 40% 100%),
+                polygon(36% 100%, 44% 30%, 52% 100%),
+                polygon(48% 100%, 56% 50%, 64% 100%),
+                polygon(60% 100%, 68% 25%, 76% 100%),
+                polygon(72% 100%, 80% 45%, 88% 100%),
+                polygon(84% 100%, 92% 35%, 100% 100%);
+            background-color: #8B4513;
+            background-size: 100% 100%;
+            animation: moveBackground 20s linear infinite;
+            z-index: 2;
+        }
+
+        /* Left Footpath with Flowers */
+        #leftFootpath {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 15%;
+            height: 100%;
+            background: linear-gradient(to right, #8B4513 0%, #8B4513 60%, #32CD32 60%, #32CD32 100%);
+            z-index: 3;
+        }
+
+        /* Right Footpath with Flowers */
+        #rightFootpath {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 15%;
+            height: 100%;
+            background: linear-gradient(to left, #8B4513 0%, #8B4513 60%, #32CD32 60%, #32CD32 100%);
+            z-index: 3;
+        }
+
+        /* Flower Borders */
+        .flower-border {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 10%, #FF69B4 8px, transparent 8px),
+                radial-gradient(circle at 30% 25%, #FFD700 6px, transparent 6px),
+                radial-gradient(circle at 50% 15%, #FF4500 7px, transparent 7px),
+                radial-gradient(circle at 70% 30%, #9370DB 8px, transparent 8px),
+                radial-gradient(circle at 90% 20%, #FF1493 6px, transparent 6px),
+                radial-gradient(circle at 15% 45%, #32CD32 5px, transparent 5px),
+                radial-gradient(circle at 35% 55%, #FF69B4 7px, transparent 7px),
+                radial-gradient(circle at 55% 40%, #FFD700 6px, transparent 6px),
+                radial-gradient(circle at 75% 60%, #FF4500 8px, transparent 8px),
+                radial-gradient(circle at 95% 50%, #9370DB 7px, transparent 7px),
+                radial-gradient(circle at 20% 75%, #FF1493 6px, transparent 6px),
+                radial-gradient(circle at 40% 85%, #32CD32 8px, transparent 8px),
+                radial-gradient(circle at 60% 70%, #FF69B4 7px, transparent 7px),
+                radial-gradient(circle at 80% 90%, #FFD700 6px, transparent 6px),
+                radial-gradient(circle at 100% 80%, #FF4500 7px, transparent 7px);
+            background-size: 50px 50px, 60px 60px, 45px 45px, 55px 55px, 50px 50px,
+                           40px 40px, 48px 48px, 52px 52px, 44px 44px, 46px 46px,
+                           42px 42px, 58px 58px, 54px 54px, 56px 56px, 50px 50px;
+            animation: flowerSway 3s ease-in-out infinite;
+        }
+
+        @keyframes flowerSway {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Main Road - Full Height */
+        #road {
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(to bottom, #2C2C2C 0%, #1A1A1A 100%);
+            border-left: 8px solid #228B22;
+            border-right: 8px solid #228B22;
+            z-index: 4;
+        }
+
+        /* Vertical Lane Lines */
+        .lane-line {
+            position: absolute;
+            width: 8px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #FFFF00 0px,
+                #FFFF00 50px,
+                transparent 50px,
+                transparent 100px
+            );
+            animation: moveLanes 1.5s linear infinite;
+        }
+
+        .lane-line:nth-child(1) { left: 25%; }
+        .lane-line:nth-child(2) { left: 50%; }
+        .lane-line:nth-child(3) { left: 75%; }
+
+        @keyframes moveLanes {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100px); }
+        }
+
+        /* Realistic Car Design */
+        .car {
+            position: absolute;
+            width: 60px;
+            height: 120px;
+            z-index: 15;
+            transition: all 0.1s ease;
+        }
+
+        .car-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #0066FF 0%, #003399 50%, #0066FF 100%);
+            border-radius: 30px 30px 10px 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            position: relative;
+            border: 2px solid #001166;
+        }
+
+        .car-windshield {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            width: 40px;
+            height: 35px;
+            background: linear-gradient(145deg, #87CEEB 0%, #4682B4 100%);
+            border-radius: 20px 20px 5px 5px;
+            border: 3px solid #000;
+        }
+
+        .car-roof {
+            position: absolute;
+            top: 55px;
+            left: 12px;
+            width: 36px;
+            height: 25px;
+            background: linear-gradient(145deg, #003399 0%, #001166 100%);
+            border-radius: 8px;
+        }
+
+        .car-headlights {
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            width: 8px;
+            height: 6px;
+            background: radial-gradient(circle, #FFFF88 0%, #FFFF00 100%);
+            border-radius: 50%;
+            box-shadow: 20px 0 0 #FFFF88;
+        }
+
+        .car-wheels {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: radial-gradient(circle, #000 0%, #333 50%, #000 100%);
+            border-radius: 50%;
+            border: 2px solid #666;
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.3);
+        }
+
+        .wheel-front-left { top: 20px; left: -4px; }
+        .wheel-front-right { top: 20px; right: -4px; }
+        .wheel-back-left { bottom: 20px; left: -4px; }
+        .wheel-back-right { bottom: 20px; right: -4px; }
+
+        /* Bus Design */
+        .bus {
+            position: absolute;
+            width: 70px;
+            height: 150px;
+            z-index: 15;
+        }
+
+        .bus-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #FFD700 0%, #DAA520 50%, #FFD700 100%);
+            border-radius: 12px 12px 20px 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            position: relative;
+            border: 2px solid #B8860B;
+        }
+
+        .bus-windows {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            width: 50px;
+            height: 80px;
+            background: linear-gradient(145deg, #87CEEB 0%, #4682B4 100%);
+            border-radius: 8px;
+            border: 3px solid #000;
+        }
+
+        .bus-door {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            width: 15px;
+            height: 40px;
+            background: linear-gradient(145deg, #654321 0%, #8B4513 100%);
+            border-radius: 3px;
+            border: 2px solid #000;
+        }
+
+        .bus-wheels {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle, #000 0%, #333 50%, #000 100%);
+            border-radius: 50%;
+            border: 2px solid #666;
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.3);
+        }
+
+        .bus-wheel-front-left { top: 30px; left: -4px; }
+        .bus-wheel-front-right { top: 30px; right: -4px; }
+        .bus-wheel-back-left { bottom: 30px; left: -4px; }
+        .bus-wheel-back-right { bottom: 30px; right: -4px; }
+
+        /* Realistic People on Footpath */
+        .person {
+            position: absolute;
+            width: 25px;
+            height: 60px;
+            z-index: 10;
+            animation: walkCycle 2s linear infinite;
+        }
+
+        .person-body {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .person-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #FFDBAC 0%, #F4A460 100%);
+            border-radius: 50%;
+            border: 1px solid #D2691E;
+        }
+
+        .person-torso {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 25px;
+            background: linear-gradient(145deg, #4169E1 0%, #191970 100%);
+            border-radius: 8px 8px 4px 4px;
+        }
+
+        .person-legs {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 20px;
+            background: linear-gradient(145deg, #000080 0%, #000000 100%);
+            border-radius: 4px 4px 2px 2px;
+        }
+
+        .person-arms {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 8px;
+            background: #FFDBAC;
+            border-radius: 4px;
+        }
+
+        @keyframes walkCycle {
+            0%, 100% { transform: translateY(0px) scaleX(1); }
+            25% { transform: translateY(-2px) scaleX(0.95); }
+            50% { transform: translateY(0px) scaleX(1); }
+            75% { transform: translateY(-1px) scaleX(1.05); }
+        }
+
+        /* Player car positioning */
+        #playerCar {
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+        }
+
+        /* Modern Gaming UI */
+        #gameHUD {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #gameInfo {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: white;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 3px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #gameInfo div {
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #gameInfo span {
+            color: #00FF88;
+            font-weight: normal;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 60px;
+            border-radius: 30px;
+            text-align: center;
+            display: none;
+            backdrop-filter: blur(20px);
+            border: 4px solid rgba(255, 68, 68, 0.5);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7);
+        }
+
+        #gameOver h2 {
+            font-size: 42px;
+            margin-bottom: 25px;
+            color: #FF4444;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+        }
+
+        #gameOver p {
+            font-size: 24px;
+            margin-bottom: 35px;
+        }
+
+        #gameOver button {
+            background: linear-gradient(145deg, #FF4444 0%, #CC0000 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 22px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            pointer-events: auto;
+        }
+
+        #gameOver button:hover {
+            background: linear-gradient(145deg, #FF6666 0%, #FF0000 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 68, 68, 0.5);
+        }
+
+        /* Instructions - Will disappear after game starts */
+        #instructions {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 3px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            opacity: 1;
+            transition: opacity 3s ease;
+        }
+
+        #instructions strong {
+            color: #00FF88;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Hide instructions after game starts */
+        #instructions.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Speed lines effect */
+        .speed-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 48px,
+                rgba(255, 255, 255, 0.1) 48px,
+                rgba(255, 255, 255, 0.1) 50px
+            );
+            animation: speedEffect 0.8s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes speedEffect {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="background"></div>
+        <div id="mountains"></div>
+        
+        <!-- Left footpath with flowers -->
+        <div id="leftFootpath">
+            <div class="flower-border"></div>
+        </div>
+        
+        <!-- Right footpath with flowers -->
+        <div id="rightFootpath">
+            <div class="flower-border"></div>
+        </div>
+        
+        <!-- Main road - Full Height -->
+        <div id="road">
+            <div class="lane-line"></div>
+            <div class="lane-line"></div>
+            <div class="lane-line"></div>
+            <div class="speed-lines"></div>
+        </div>
+        
+        <!-- Player car -->
+        <div id="playerCar" class="car">
+            <div class="car-body">
+                <div class="car-headlights"></div>
+                <div class="car-windshield"></div>
+                <div class="car-roof"></div>
+                <div class="car-wheels wheel-front-left"></div>
+                <div class="car-wheels wheel-front-right"></div>
+                <div class="car-wheels wheel-back-left"></div>
+                <div class="car-wheels wheel-back-right"></div>
+            </div>
+        </div>
+        
+        <!-- Game HUD -->
+        <div id="gameHUD">
+            <div id="gameInfo">
+                <div>💰 Score: <span id="score">0</span></div>
+                <div>🏎️ Speed: <span id="speed">50</span> mph</div>
+                <div>🎯 Level: <span id="level">1</span></div>
+                <div>❤️ Lives: <span id="lives">3</span></div>
+            </div>
+            
+            <div id="instructions">
+                <strong>🎮 GTA Style Controls:</strong><br>
+                ← → Steer Vehicle<br>
+                ↑ ↓ Accelerate/Brake<br>
+                🚌 Avoid Buses!<br>
+                🚶 Don't Hit People!
+            </div>
+        </div>
+        
+        <div id="gameOver">
+            <h2>🏁 WASTED!</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button onclick="restartGame()">🚗 New Game</button>
+        </div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('gameContainer');
+        const playerCar = document.getElementById('playerCar');
+        const scoreElement = document.getElementById('score');
+        const speedElement = document.getElementById('speed');
+        const levelElement = document.getElementById('level');
+        const livesElement = document.getElementById('lives');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const leftFootpath = document.getElementById('leftFootpath');
+        const rightFootpath = document.getElementById('rightFootpath');
+        const instructions = document.getElementById('instructions');
+
+        let gameState = {
+            playerX: window.innerWidth / 2 - 30,
+            playerY: window.innerHeight - 220,
+            speed: 50,
+            score: 0,
+            level: 1,
+            lives: 3,
+            gameRunning: true,
+            obstacles: [],
+            people: [],
+            keys: {},
+            obstacleSpeed: 3,
+            peopleSpeed: 1,
+            gameStarted: false
+        };
+
+        function updatePlayerPosition() {
+            playerCar.style.left = gameState.playerX + 'px';
+            playerCar.style.bottom = (window.innerHeight - gameState.playerY - 120) + 'px';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            gameState.keys[e.key] = true;
+            
+            // Hide instructions after first keypress
+            if (!gameState.gameStarted) {
+                gameState.gameStarted = true;
+                instructions.classList.add('hidden');
+            }
+            
+            e.preventDefault();
+        });
+
+        document.addEventListener('keyup', (e) => {
+            gameState.keys[e.key] = false;
+            e.preventDefault();
+        });
+
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.className = 'bus';
+            obstacle.innerHTML = `
+                <div class="bus-body">
+                    <div class="bus-windows"></div>
+                    <div class="bus-door"></div>
+                    <div class="bus-wheels bus-wheel-front-left"></div>
+                    <div class="bus-wheels bus-wheel-front-right"></div>
+                    <div class="bus-wheels bus-wheel-back-left"></div>
+                    <div class="bus-wheels bus-wheel-back-right"></div>
+                </div>
+            `;
+            
+            const roadStart = window.innerWidth * 0.15;
+            const roadWidth = window.innerWidth * 0.7;
+            const lanes = [
+                roadStart + roadWidth * 0.125,
+                roadStart + roadWidth * 0.375,
+                roadStart + roadWidth * 0.625,
+                roadStart + roadWidth * 0.875
+            ];
+            
+            obstacle.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+            obstacle.style.top = '-150px';
+            gameContainer.appendChild(obstacle);
+            
+            gameState.obstacles.push({
+                element: obstacle,
+                x: parseFloat(obstacle.style.left),
+                y: -150,
+                width: 70,
+                height: 150
+            });
+        }
+
+        function createPerson() {
+            const person = document.createElement('div');
+            person.className = 'person';
+            person.innerHTML = `
+                <div class="person-body">
+                    <div class="person-head"></div>
+                    <div class="person-arms"></div>
+                    <div class="person-torso"></div>
+                    <div class="person-legs"></div>
+                </div>
+            `;
+            
+            const isLeft = Math.random() < 0.5;
+            const footpath = isLeft ? leftFootpath : rightFootpath;
+            
+            person.style.left = Math.random() * (window.innerWidth * 0.1) + 'px';
+            person.style.top = '-60px';
+            
+            footpath.appendChild(person);
+            
+            gameState.people.push({
+                element: person,
+                x: parseFloat(person.style.left),
+                y: -60,
+                width: 25,
+                height: 60,
+                parent: footpath,
+                isLeft: isLeft
+            });
+        }
+
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width - 15 &&
+                   obj1.x + obj1.width > obj2.x + 15 &&
+                   obj1.y < obj2.y + obj2.height - 15 &&
+                   obj1.y + obj1.height > obj2.y + 15;
+        }
+
+        function gameOver() {
+            gameState.gameRunning = false;
+            finalScoreElement.textContent = gameState.score;
+            gameOverScreen.style.display = 'block';
+        }
+
+        function restartGame() {
+            gameState = {
+                playerX: window.innerWidth / 2 - 30,
+                playerY: window.innerHeight - 220,
+                speed: 50,
+                score: 0,
+                level: 1,
+                lives: 3,
+                gameRunning: true,
+                obstacles: [],
+                people: [],
+                keys: {},
+                obstacleSpeed: 3,
+                peopleSpeed: 1,
+                gameStarted: false
+            };
+            
+            document.querySelectorAll('.bus').forEach(bus => bus.remove());
+            document.querySelectorAll('.person').forEach(person => person.remove());
+            gameOverScreen.style.display = 'none';
+            instructions.classList.remove('hidden');
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+
+            // Player movement
+            const roadStart = window.innerWidth * 0.15;
+            const roadEnd = window.innerWidth * 0.85;
+            
+            if (gameState.keys['ArrowLeft'] && gameState.playerX > roadStart + 10) {
+                gameState.playerX -= 8;
+            }
+            if (gameState.keys['ArrowRight'] && gameState.playerX < roadEnd - 70) {
+                gameState.playerX += 8;
+            }
+            if (gameState.keys['ArrowUp'] && gameState.speed < 150) {
+                gameState.speed += 3;
+            }
+            if (gameState.keys['ArrowDown'] && gameState.speed > 20) {
+                gameState.speed -= 3;
+            }
+
+            updatePlayerPosition();
+
+            // Level progression
+            if (gameState.score > 0 && gameState.score % 150 === 0) {
+                gameState.level = Math.floor(gameState.score / 150) + 1;
+                gameState.obstacleSpeed = Math.min(8, 3 + gameState.level * 0.5);
+                gameState.peopleSpeed = Math.min(4, 1 + gameState.level * 0.3);
+            }
+
+            // Create obstacles and people
+            if (Math.random() < 0.02 + gameState.level * 0.005) {
+                createObstacle();
+            }
+            
+            if (Math.random() < 0.015) {
+                createPerson();
+            }
+
+            // Update obstacles
+            gameState.obstacles.forEach((obstacle, index) => {
+                obstacle.y += gameState.obstacleSpeed + (gameState.speed - 50) / 25;
+                obstacle.element.style.top = obstacle.y + 'px';
+
+                const playerRect = {
+                    x: gameState.playerX,
+                    y: gameState.playerY,
+                    width: 60,
+                    height: 120
+                };
+
+                if (checkCollision(playerRect, obstacle)) {
+                    gameState.lives--;
+                    if (gameState.lives <= 0) {
+                        gameOver();
+                        return;
+                    }
+                    obstacle.element.remove();
+                    gameState.obstacles.splice(index, 1);
+                }
+
+                if (obstacle.y > window.innerHeight) {
+                    obstacle.element.remove();
+                    gameState.obstacles.splice(index, 1);
+                    gameState.score += 15;
+                }
+            });
+
+            // Update people
+            gameState.people.forEach((person, index) => {
+                person.y += gameState.peopleSpeed + (gameState.speed - 50) / 40;
+                person.element.style.top = person.y + 'px';
+
+                if (person.y > window.innerHeight) {
+                    person.element.remove();
+                    gameState.people.splice(index, 1);
+                    gameState.score += 5;
+                }
+            });
+
+            // Update UI
+            scoreElement.textContent = gameState.score;
+            speedElement.textContent = gameState.speed;
+            levelElement.textContent = gameState.level;
+            livesElement.textContent = gameState.lives;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener('resize', () => {
+            const roadStart = window.innerWidth * 0.15;
+            const roadEnd = window.innerWidth * 0.85;
+            gameState.playerX = Math.max(roadStart + 10, Math.min(gameState.playerX, roadEnd - 70));
+            updatePlayerPosition();
+        });
+
+        // Initialize game
+        updatePlayerPosition();
+        gameLoop();
+    </script>
+</body>
+</html>
